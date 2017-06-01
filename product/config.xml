@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd">
+
+<http:listener-config name="HTTP_Listener_Configuration" host="${cloudhub.product.host}" port="${cloudhub.product.port}" doc:name="HTTP Listener Configuration"/>
+
+<cloudhub:token-config name="Cloudhub__Inhered_Token_Authentication" doc:name="Cloudhub: Inhered Token Authentication"/>
+
+<spring:beans>
+	<context:property-placeholder location="classpath:${mule.env}.properties" />
+</spring:beans>
+
+<spring:beans>
+	<spring:bean id="objectStore" class="org.mule.util.store.SimpleMemoryObjectStore"/>
+</spring:beans>
+	
+<vm:connector name="Product_VMQ" validateConnections="true" doc:name="VM">
+   <vm:queue-profile maxOutstandingMessages="50">
+			<default-persistent-queue-store />
+		</vm:queue-profile>
+</vm:connector>
+        
+    
+    
+
+</mule>

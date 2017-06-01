@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+    <flow name="product-connector-sendPrice-DEMANDWARE">
+        <vm:inbound-endpoint exchange-pattern="one-way" path="demandwarePrices" connector-ref="Product_VMQ" doc:name="Send Prices to Demandware"/>
+        
+        
+		<until-successful maxRetries="${dw.sftp.retry.numbertimes}" objectStore-ref="objectStore" millisBetweenRetries="${dw.sftp.retry.interval}" doc:name="Until_Success" failureExpression="#[flowVars.success == 'no']">
+			<processor-chain doc:name="Processor Chain">
+				<set-variable variableName="tempPayload" value="#[payload]" doc:name="Set Temp Payload"/>
+				<flow-ref name="product-connector-untilSuccessful-sendPrice-DEMANDWARE" doc:name="product-connector-untilSuccessful-sendPrice-DEMANDWARE"/>
+			</processor-chain>
+		</until-successful>
+        <logger message="##BM-LOG## FLOW NAME: #[flow.name] ## PRICE FILE SENT TO DEMANDWARE" level="INFO" doc:name="Log Price File Successfully Sent"/>
+        
+    </flow>
+    <flow name="product-connector-untilSuccessful-sendPrice-DEMANDWARE"  processingStrategy="synchronous">
+		<set-payload value="#[flowVars.tempPayload]" doc:name="Set Payload"/>
+		<set-variable variableName="fileName" value="#['DemandwarePrices_' + message.inboundProperties.'dateTime']" doc:name="Set File Name"/>
+        <mulexml:dom-to-xml-transformer doc:name="Convert Byte Array to XML"/>
+ 	<!-- 	<sftp:outbound-endpoint exchange-pattern="one-way" connector-ref="SFTP_DELETE" outputPattern="#[flowVars.fileName].xml" host="${sftp.xmloutput.location2.host}" port="${sftp.xmloutput.location2.port}" path="${sftp.xmloutput.demandware.path.price}" user="${sftp.xmloutput.location2.user}" password="${sftp.xmloutput.location2.password}" responseTimeout="30000" doc:name="SFTP Demandware" duplicateHandling="addSeqNo"/> -->
+ 		<mulexml:dom-to-xml-transformer doc:name="Convert Byte Array to XML"/>
+ 	<!-- 	<sftp:outbound-endpoint exchange-pattern="one-way"  outputPattern="#[flowVars.fileName].xml" host="${sftp.xmloutput.location2.host}" port="${sftp.xmloutput.location2.port}" path="${sftp.xmloutput.demandware.path.price.archive}" user="${sftp.xmloutput.location2.user}" password="${sftp.xmloutput.location2.password}" responseTimeout="30000" doc:name="SFTP Demandware" duplicateHandling="addSeqNo" connector-ref="SFTP_DELETE"/> -->
+		<set-variable variableName="success" value="yes" doc:name="Set Outcome"/>
+		 <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <enricher source="#[payload]" target="#[flowVars.exceptionAlertBody]" doc:name="Message Enricher">
+                <parse-template location="${app.home}/classes/exceptionTemplates/product-connector-demandwarePrice.txt" doc:name="Populate Alert Body"/>
+            </enricher>
+            <logger message="## AS-LOG ## EXCEPTION CAUGHT ## FLOW NAME: #[flow.name] ## MESSAGE ID: #[message.id] - FAILED WITH EXCEPTION - #[exception] #[exception.message.cause]" level="INFO" doc:name="Log Failure"/>
+            <logger message="#[flowVars.alertFlowName=flow.name]" level="INFO" doc:name="Extract Flow Name"/>
+           <message-properties-transformer scope="invocation" doc:name="Get Properties">
+                <add-message-property key="cloudhubDomain" value="${cloudhub.domain}"/>
+                <add-message-property key="cloudhubDisableAlert" value="${cloudhub.disable.alert}"/>
+            </message-properties-transformer>
+            <expression-filter expression="#[!(flowVars.cloudhubDisableAlert contains flowVars.alertFlowName)]" doc:name="Disable Alert ?"/>
+             <cloudhub:create-notification domain="${cloudhub.domain}" config-ref="Cloudhub__Inhered_Token_Authentication" message="#['GenAlert1_' + flowVars.alertFlowName]" priority="WARN" doc:name="Cloudhub Alert">
+				<cloudhub:custom-properties>
+                    <cloudhub:custom-property key="alertFlowName" value-ref="#[flowVars.alertFlowName]"/>
+                    <cloudhub:custom-property key="exceptionAlertBody" value-ref="#[flowVars.exceptionAlertBody]"/>
+                    <cloudhub:custom-property key="appName" value-ref="#[app.name]"/>
+                    <cloudhub:custom-property key="domain" value-ref="#[flowVars.cloudhubDomain]"/>
+				</cloudhub:custom-properties>
+			</cloudhub:create-notification>
+        </catch-exception-strategy>
+	</flow>
+</mule>

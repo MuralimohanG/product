@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:cloudhub="http://www.mulesoft.org/schema/mule/cloudhub"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/cloudhub http://www.mulesoft.org/schema/mule/cloudhub/current/mule-cloudhub.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+   
+    
+    <flow name="product-business-price-handlePrices">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/handlePrices" doc:name="Recieve Inbound Prices"/>
+        <logger message="##BM-LOG## FLOW NAME: #[flow.name] ## PRICE FILE RECIEVED - TARGET SYSTEMS: DEMANDWARE-RETAILJ-CACHE" level="INFO" doc:name="Log Inbound Request"/>
+        <logger level="INFO" doc:name="Validate message" message="VALIDATE"/>
+        <object-to-byte-array-transformer doc:name="Object to Byte Array"/>
+        <scatter-gather doc:name="Scatter-Gather">
+            <flow-ref name="product-business-price-processDemandwarePrices" doc:name="product-business-price-processDemandwarePrices"/>
+            <flow-ref name="product-business-price-processRetailJPrices" doc:name="product-business-price-processRetailJPrices"/>
+            <flow-ref name="product-business-price-updateCache" doc:name="product-business-price-updateCache"/>
+        </scatter-gather>
+        <set-payload value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;input&gt;&lt;value&gt;SUCCESS&lt;/value&gt;&lt;/input&gt;" doc:name="Set Payload"/>
+        
+         <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <enricher source="#[payload]" target="#[flowVars.exceptionAlertBody]" doc:name="Message Enricher">
+                <parse-template location="${app.home}/classes/exceptionTemplates/product-business-handlePrice.txt" doc:name="Populate Alert Body"/>
+            </enricher>
+            <logger message="## AS-LOG ## EXCEPTION CAUGHT ## FLOW NAME: #[flow.name] ## MESSAGE ID: #[message.id] - FAILED WITH EXCEPTION - #[exception] #[exception.message.cause]" level="INFO" doc:name="Log Failure"/>
+            <logger message="#[flowVars.alertFlowName=flow.name]" level="INFO" doc:name="Extract Flow Name"/>
+           <message-properties-transformer scope="invocation" doc:name="Get Properties">
+                <add-message-property key="cloudhubDomain" value="${cloudhub.domain}"/>
+                <add-message-property key="cloudhubDisableAlert" value="${cloudhub.disable.alert}"/>
+            </message-properties-transformer>
+            <expression-filter expression="#[!(flowVars.cloudhubDisableAlert contains flowVars.alertFlowName)]" doc:name="Disable Alert ?"/>
+             <cloudhub:create-notification domain="${cloudhub.domain}" config-ref="Cloudhub__Inhered_Token_Authentication" message="#['GenAlert1_' + flowVars.alertFlowName]" priority="WARN" doc:name="Cloudhub Alert">
+				<cloudhub:custom-properties>
+                    <cloudhub:custom-property key="alertFlowName" value-ref="#[flowVars.alertFlowName]"/>
+                    <cloudhub:custom-property key="exceptionAlertBody" value-ref="#[flowVars.exceptionAlertBody]"/>
+                    <cloudhub:custom-property key="appName" value-ref="#[app.name]"/>
+                    <cloudhub:custom-property key="domain" value-ref="#[flowVars.cloudhubDomain]"/>
+				</cloudhub:custom-properties>
+			</cloudhub:create-notification>
+        </catch-exception-strategy>
+    </flow>
+    <flow name="product-business-price-processDemandwarePrices">
+        <logger message="DW Prices #[payload]" level="INFO" doc:name="Log Message Recieved"/>
+        <logger message="xxxx" level="INFO" doc:name="XForm Message to Demandware Format"/>
+        <vm:outbound-endpoint exchange-pattern="one-way"  doc:name="PUT Outbound Message onto Demandware VMQ" connector-ref="Product_VMQ" path="demandwarePrices"/>
+    </flow>
+    <flow name="product-business-price-processRetailJPrices">
+        <logger message="RJ Prices #[payload]" level="INFO" doc:name="Log Message Recieved"/>
+        <logger message="xxxx" level="INFO" doc:name="XForm Message to Retail J Format"/>
+        <vm:outbound-endpoint exchange-pattern="one-way"  doc:name="PUT Outbound Message onto Retail J VMQ" connector-ref="Product_VMQ" path="retailjPrices"/>
+    </flow>
+    <flow name="product-business-price-updateCache">
+        <logger message="##BM-LOG## FLOW NAME: #[flow.name] ## UPDATING CACHE WITH PRICES" level="INFO" doc:name="Log Message Recieved"/>
+    </flow>
+</mule>
