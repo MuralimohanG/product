@@ -1,4 +1,5 @@
 <classpath>
+  <classpathentry kind="src" path="src/main/api" excluding="**/*.java"/>
   <classpathentry kind="src" path="src/main/app" excluding="**/*.java"/>
   <classpathentry kind="src" path="src/main/java"/>
   <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
@@ -10,19 +11,38 @@
   <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/mulesoft/cloudhub/cloudhub-client-api/1.0.0-ch-connector/cloudhub-client-api-1.0.0-ch-connector.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/mulesoft/cloudhub/cloudhub-rest-model/1.0.2/cloudhub-rest-model-1.0.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-configuration/commons-configuration/1.10/commons-configuration-1.10.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-csv/1.4/commons-csv-1.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/core4j/core4j/0.5/core4j-0.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/eclipse/persistence/eclipselink/2.1.2/eclipselink-2.1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/google/guava/guava/11.0.2/guava-11.0.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpclient/4.5.3/httpclient-4.5.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.4.6/httpcore-4.4.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-annotations/2.6.3/jackson-annotations-2.6.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-core-asl/1.8.3/jackson-core-asl-1.8.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-databind/2.6.3/jackson-databind-2.6.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-jaxrs/1.8.3/jackson-jaxrs-1.8.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-mapper-asl/1.8.3/jackson-mapper-asl-1.8.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jackson/jackson-xc/1.8.3/jackson-xc-1.8.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/eclipse/persistence/javax.persistence/2.0.0/javax.persistence-2.0.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.2.2/jaxb-api-2.2.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/sun/xml/bind/jaxb-impl/2.2.3-1/jaxb-impl-2.2.3-1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-client/1.9.1/jersey-client-1.9.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-core/1.9.1/jersey-core-1.9.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-client/1.1.5/jersey-client-1.1.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-core/1.1.5/jersey-core-1.1.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-json/1.9.1/jersey-json-1.9.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/sun/jersey/jersey-server/1.1.5/jersey-server-1.1.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/jettison/jettison/1.1/jettison-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time/1.6/joda-time-1.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mule/tools/devkit/mule-devkit-shade/3.9.0/mule-devkit-shade-3.9.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mule/modules/mule-module-cloudhub/2.0.2/mule-module-cloudhub-2.0.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mysql/mysql-connector-java/5.1.40/mysql-connector-java-5.1.40.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/odata4j/odata4j-core/0.7.0/odata4j-core-0.7.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/odata4j/odata4j-jersey/0.7.0/odata4j-jersey-0.7.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/openjpa/openjpa-all/2.4.2/openjpa-all-2.4.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/stax/stax-api/1.0.1/stax-api-1.0.1.jar"/>
 </classpath>
