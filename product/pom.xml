@@ -227,7 +227,7 @@
 							<muleVersion>3.8.3</muleVersion>
 							<region>eu-west-1</region>
 							<username>tejasbavishi</username>
-							<password>RedRiver@123</password>
+							<password>garlapati_bonmarche</password>
 							<applicationName>${cloud-application-name}</applicationName>
 							<redeploy>true</redeploy>
 							<environment>${environment}</environment>
